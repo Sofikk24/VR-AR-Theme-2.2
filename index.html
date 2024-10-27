@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>AR.js Gesture Interaction</title>
+    <!-- Подключаем A-Frame -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <!-- Подключаем AR.js с поддержкой маркеров -->
+    <script src="https://cdn.jsdelivr.net/npm/ar.js@3.3.2/aframe/build/aframe-ar.js"></script>
+    <!-- Подключаем arjs-gestures -->
+    <script src="https://cdn.jsdelivr.net/npm/arjs-gestures@1.0.1/arjs-gestures.js"></script>
+  </head>
+  <body style="margin: 0; overflow: hidden;">
+    <a-scene
+      embedded
+      arjs="sourceType: webcam;"
+      vr-mode-ui="enabled: false"
+      gesture-detector
+    >
+      <!-- Маркер 1: Аудио и Модель -->
+      <a-marker
+        type="pattern"
+        url="marker1/pattern-1688403571_zefirka-club-p-bukva-ye-61.patt"
+        id="marker1"
+        emitevents="true"
+      >
+        <!-- Аудио -->
+        <a-entity
+          id="sound-entity"
+          sound="src: url(IcikCiperDimok.mp3); autoplay: false;"
+          gesture-handler
+          position="0 0 0"
+        >
+          <!-- Визуальный объект для взаимодействия -->
+          <a-box
+            id="sound-box"
+            position="0 0.5 0"
+            color="blue"
+          ></a-box>
+        </a-entity>
+
+        <!-- Модель -->
+        <a-entity
+          id="model-entity"
+          gltf-model="models/model.glb"
+          scale="0.5 0.5 0.5"
+          position="0 0 0"
+          rotation="0 0 0"
+          gesture-handler
+        ></a-entity>
+      </a-marker>
+
+      <!-- Маркер 2: Фото и Видео -->
+      <a-marker
+        type="pattern"
+        url="marker2/pattern-i (1).patt"
+        id="marker2"
+        emitevents="true"
+      >
+        <!-- Фото -->
+        <a-image
+          id="image-entity"
+          src="images/photo.jpg"
+          position="0 0 0"
+          rotation="-90 0 0"
+          width="2"
+          height="1"
+          gesture-handler
+        ></a-image>
+
+        <!-- Видео -->
+        <a-video
+          id="video-entity"
+          src="videos/video.mp4"
+          position="0 0 0"
+          rotation="-90 0 0"
+          width="2"
+          height="1"
+          autoplay="false"
+          loop
+          gesture-handler
+        ></a-video>
+      </a-marker>
+
+      <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+      // Обработка событий для маркера 1
+      const marker1 = document.querySelector('#marker1');
+
+      marker1.addEventListener('markerFound', () => {
+        console.log('Маркер 1 найден');
+        // Запускаем аудио
+        const soundEntity = document.querySelector('#sound-entity');
+        soundEntity.components.sound.playSound();
+      });
+
+      marker1.addEventListener('markerLost', () => {
+        console.log('Маркер 1 потерян');
+        // Останавливаем аудио
+        const soundEntity = document.querySelector('#sound-entity');
+        soundEntity.components.sound.stopSound();
+      });
+
+      // Обработка клика на аудио и модели для перенаправления
+      marker1.addEventListener('click', (ev) => {
+        const intersectedElement = ev.detail.intersectedEl;
+        if (intersectedElement) {
+          if (intersectedElement === document.querySelector('#sound-box') ||
+              intersectedElement === document.querySelector('#model-entity')) {
+            window.location.href = 'https://www.example.com';
+          }
+        }
+      });
+
+      // Обработка событий для маркера 2
+      const marker2 = document.querySelector('#marker2');
+
+      marker2.addEventListener('markerFound', () => {
+        console.log('Маркер 2 найден');
+        // Запускаем видео
+        const videoEntity = document.querySelector('#video-entity');
+        videoEntity.play();
+      });
+
+      marker2.addEventListener('markerLost', () => {
+        console.log('Маркер 2 потерян');
+        // Останавливаем видео
+        const videoEntity = document.querySelector('#video-entity');
+        videoEntity.pause();
+      });
+
+      // Обработка клика на фото и видео для перенаправления
+      marker2.addEventListener('click', (ev) => {
+        const intersectedElement = ev.detail.intersectedEl;
+        if (intersectedElement) {
+          if (intersectedElement === document.querySelector('#image-entity') ||
+              intersectedElement === document.querySelector('#video-entity')) {
+            window.location.href = 'https://www.example.org';
+          }
+        }
+      });
+
+      // Обработка возможности считывать оба маркера и отображать оба контента
+      const sceneEl = document.querySelector('a-scene');
+
+      sceneEl.addEventListener('click', (ev) => {
+        const intersectedElement = ev.detail.intersectedEl;
+        if (intersectedElement) {
+          // Проверяем, к какому маркеру относится элемент
+          if (marker1.contains(intersectedElement)) {
+            if (intersectedElement === document.querySelector('#sound-box') ||
+                intersectedElement === document.querySelector('#model-entity')) {
+              window.location.href = 'https://www.example.com';
+            }
+          } else if (marker2.contains(intersectedElement)) {
+            if (intersectedElement === document.querySelector('#image-entity') ||
+                intersectedElement === document.querySelector('#video-entity')) {
+              window.location.href = 'https://www.example.org';
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
